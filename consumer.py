@@ -53,7 +53,7 @@ while plt.fignum_exists(fig.number):  # sigue mientras la ventana este abierta
         for m in msgs:
             try:
                 payload = deserializar(m.value)  # bytes -> diccionario
-            except ValueError:  # si el mensaje no tiene el formato esperado, se ignora
+            except ValueError:  # si el mensaje no tiene el formato esperado, no se toma en cuenta
                 print(f"offset={m.offset} ignorado: {m.value!r}", flush=True)
                 continue
             print(f"offset={m.offset} key={m.key} raw={m.value!r} -> {payload}", flush=True)
