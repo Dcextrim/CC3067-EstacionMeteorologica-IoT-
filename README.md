@@ -10,6 +10,7 @@ Simulación de un nodo de sensores (temperatura, humedad y dirección del viento
 | `producer.py` | Dispositivo IoT: envía una lectura cada 15–30 s hasta que se interrumpe (Ctrl+C) |
 | `consumer.py` | Se suscribe al topic y actualiza las gráficas con cada mensaje nuevo |
 | `capturas/` | Capturas de las gráficas generadas con la data consumida |
+| `presentacion/` | Presentación (HTML y PDF), gráficas del historial y registros de los producers |
 
 ## Uso
 
