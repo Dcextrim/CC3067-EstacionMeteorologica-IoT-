@@ -11,7 +11,7 @@ AUTH = dict(
     sasl_plain_password="TryluRandomPass-2!@!",
 )
 
-# Las 8 direcciones posibles del viento; su posicion (0-7) cabe en 3 bits
+# Las 8 direcciones posibles del viento
 DIRECCIONES = ["N", "NO", "O", "SO", "S", "SE", "E", "NE"]
 
 
@@ -35,23 +35,23 @@ def from_json_bytes(b):
 
 
 def encode(d):
-    """JSON -> 3 bytes: [temp*100 : 14 bits][humedad : 7 bits][viento : 3 bits].
-    temp*100 va de 0 a 11000 < 2^14 = 16384, asi la temperatura entra como entero."""
-    t = round(d["temperatura"] * 100)  # 56.32 -> 5632 (quitamos el punto decimal)
-    # Juntamos los tres valores en un solo numero de 24 bits corriendo cada uno a su lugar
+    """Convierte la lectura en 3 bytes.
+    Temperatura usa 14 bits, humedad 7 bits y viento 3 bits."""
+    t = round(d["temperatura"] * 100)  # 56.32 -> 5632, maximo 11000 que cabe en 14 bits
+    # Junta los tres valores en un solo numero de 24 bits
     n = (t << 10) | (d["humedad"] << 3) | DIRECCIONES.index(d["direccion_viento"])
     return n.to_bytes(3, "big")  # numero de 24 bits -> 3 bytes
 
 
 def decode(b):
-    """3 bytes -> JSON (dict)."""
+    """Convierte 3 bytes de vuelta en la lectura original."""
     if len(b) != 3:
         raise ValueError(f"payload de {len(b)} bytes, se esperaban 3")
     n = int.from_bytes(b, "big")  # 3 bytes -> numero de 24 bits
-    # Separamos cada campo con desplazamientos (>>) y mascaras (&)
-    return {"temperatura": (n >> 10) / 100,        # 14 bits de arriba, /100 recupera los decimales
-            "humedad": (n >> 3) & 0x7F,            # 7 bits del medio (0x7F = 1111111)
-            "direccion_viento": DIRECCIONES[n & 0x7]}  # 3 bits de abajo (0x7 = 111)
+    # Separa cada valor tomando sus bits
+    return {"temperatura": (n >> 10) / 100,        # primeros 14 bits, entre 100 para los decimales
+            "humedad": (n >> 3) & 0x7F,            # siguientes 7 bits
+            "direccion_viento": DIRECCIONES[n & 0x7]}  # ultimos 3 bits
 
 
 if __name__ == "__main__":  # auto-prueba: python codec.py
